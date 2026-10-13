@@ -8,13 +8,11 @@ import { Typewriter } from "./Typewriter";
 import { ease } from "@/lib/motion";
 
 /**
- * Townhouses in Antwerp (Kieran Child, Unsplash License), with terraced houses in
- * Utrecht (M Polinder, Unsplash License) as a backup. Swap for our own photography later.
+ * Served from our own site so it always loads. A corner townhouse in Antwerp
+ * (Chris Liverani, Unsplash), with a whitewashed beguinage house (Philippe Bontemps,
+ * Unsplash) as a backup. Swap for our own photography later.
  */
-const HERO_PHOTOS = [
-  "https://images.unsplash.com/photo-1782942287958-c10589dcb0e7?auto=format&fit=crop&w=2000&q=80",
-  "https://images.unsplash.com/photo-1597009513659-9366603c7e82?auto=format&fit=crop&w=2000&q=80",
-];
+const HERO_PHOTOS = ["/hero.jpg", "/hero-alt.jpg"];
 
 const ADJECTIVES = ["better", "calmer", "smarter", "kinder", "simpler", "clearer"];
 
@@ -136,7 +134,7 @@ function Photo() {
             initial={false}
             animate={loaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.1 }}
             transition={{ opacity: { duration: 1, ease: ease.out }, scale: { duration: 2.6, ease: ease.out } }}
-            className="h-full w-full object-cover object-[55%_60%]"
+            className="h-full w-full object-cover object-[50%_60%]"
           />
         </motion.div>
       )}
