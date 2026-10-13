@@ -1,27 +1,41 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Warm paper background, near-black ink, one brick accent
- * (a nod to Flemish brick). Everything else is derived from these.
- */
-/*
- * Design tokens. Off-black background, warm off-white text, one ember-orange
- * accent (the lit windows of a house at dusk). Everything else derives from these.
+ * Design tokens. Light: warm off-white. Dark: deep charcoal with a hint of green.
+ * One ember-orange accent in both. Everything else derives from these.
  */
 :root {
-  color-scheme: dark;
-  --paper: #0d0c0b;
-  --paper-raised: #171513;
-  --ink: #eeeae3;
-  --ink-soft: #b3ada3;
-  --ink-faint: #7c766d;
-  --line: #2a2723;
+  color-scheme: light;
+  --paper: #f2ede5;
+  --paper-raised: #fbf9f5;
+  --ink: #1d1c1a;
+  --ink-soft: #57534c;
+  --ink-faint: #8d877d;
+  --line: #e0d9ce;
   --brick: #f26a21;
-  --brick-soft: #3a1f12;
-  --moss: #8cc4a2;
-  --moss-soft: #1b2b22;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.7);
+  --brick-soft: #fbe2d2;
+  --moss: #2f6b4b;
+  --moss-soft: #dcebe1;
+  --shadow-card: 0 1px 2px rgb(29 28 26 / 0.04), 0 8px 24px -8px rgb(29 28 26 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(29 28 26 / 0.06), 0 24px 48px -12px rgb(29 28 26 / 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #1d2220;
+    --paper-raised: #252b28;
+    --ink: #ece8e1;
+    --ink-soft: #b2aea6;
+    --ink-faint: #7f8580;
+    --line: #333a36;
+    --brick: #f26a21;
+    --brick-soft: #3d2416;
+    --moss: #8cc4a2;
+    --moss-soft: #22322a;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 24px -8px rgb(0 0 0 / 0.45);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.6);
+  }
 }
 
 @theme inline {

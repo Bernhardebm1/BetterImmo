@@ -50,7 +50,7 @@ export function Composer({
         "group relative flex w-full items-center gap-3 border border-ink/15 bg-paper-raised/60 backdrop-blur-xl",
         "transition-[border-color,background-color,box-shadow] duration-300",
         "focus-within:border-ink/35 focus-within:bg-paper-raised/80 focus-within:shadow-[0_0_0_4px_rgb(242_106_33/0.08)]",
-        hero ? "rounded-2xl p-2.5 pl-5" : "rounded-xl p-1.5 pl-4",
+        hero ? "rounded-lg p-2.5 pl-5 shadow-card" : "rounded-xl p-1.5 pl-4",
       )}
     >
       <textarea
@@ -69,7 +69,7 @@ export function Composer({
         }}
         className={clsx(
           "block min-w-0 flex-1 resize-none overflow-hidden bg-transparent font-mono text-ink caret-brick outline-none placeholder:truncate placeholder:text-ink-faint focus-visible:outline-none",
-          hero ? "h-7 py-0.5 text-[15px] leading-6 sm:text-base" : "h-6 text-sm leading-6",
+          hero ? "h-7 py-0.5 text-sm leading-6" : "h-6 text-sm leading-6",
         )}
       />
       <motion.button
@@ -82,7 +82,7 @@ export function Composer({
         className={clsx(
           "relative grid shrink-0 place-items-center rounded-full text-white transition-[background-color,opacity] duration-300",
           value.trim() ? "bg-brick" : "bg-brick/80",
-          hero ? "h-10 w-10" : "h-8 w-8",
+          hero ? "h-11 w-11" : "h-8 w-8",
         )}
       >
         <AnimatePresence mode="wait" initial={false}>
