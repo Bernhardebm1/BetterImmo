@@ -229,7 +229,8 @@ function VectorMap({
 
   return (
     <div className={clsx("relative overflow-hidden bg-[var(--map-land)]", className)}>
-      <div ref={box} className="absolute inset-0" />
+      {/* MapLibre makes its container position: relative, so size it with h/w rather than inset. */}
+      <div ref={box} className="h-full w-full" />
       {m && (
         <div className="pointer-events-none absolute inset-0">
           {pins.map((p) => {
