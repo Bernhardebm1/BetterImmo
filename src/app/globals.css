@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Warm paper background, near-black ink, one brick accent
+ * (a nod to Flemish brick). Everything else is derived from these.
+ */
+:root {
+  --paper: #f5f1ea;
+  --paper-raised: #fbf9f5;
+  --ink: #1c1a17;
+  --ink-soft: #57524a;
+  --ink-faint: #8f887c;
+  --line: #e3ddd2;
+  --brick: #b5482a;
+  --brick-soft: #f3e1d9;
+  --moss: #2f5d46;
+  --moss-soft: #dde9e1;
+  --shadow-card: 0 1px 2px rgb(28 26 23 / 0.04), 0 8px 24px -8px rgb(28 26 23 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(28 26 23 / 0.06), 0 24px 48px -12px rgb(28 26 23 / 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14130f;
+    --paper-raised: #1d1b17;
+    --ink: #f2ede4;
+    --ink-soft: #bdb5a8;
+    --ink-faint: #81796d;
+    --line: #2e2b25;
+    --brick: #e0714f;
+    --brick-soft: #3a2219;
+    --moss: #7fbf9c;
+    --moss-soft: #1d3127;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.6);
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-brick: var(--brick);
+  --color-brick-soft: var(--brick-soft);
+  --color-moss: var(--moss);
+  --color-moss-soft: var(--moss-soft);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-serif), ui-serif, Georgia, serif;
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--paper);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--brick-soft);
+  color: var(--ink);
+}
+
+:focus-visible:not(textarea) {
+  outline: 2px solid var(--brick);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Hide scrollbars on horizontal chip rows while keeping them scrollable. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Subtle paper grain over the whole page. */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
