@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Caveat, IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -7,11 +7,16 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const serif = Instrument_Serif({
-  variable: "--font-serif",
+const mono = IBM_Plex_Mono({
+  variable: "--font-plex",
   subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  weight: ["300", "400", "500"],
+});
+
+const hand = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["500"],
 });
 
 export const metadata: Metadata = {
@@ -21,15 +26,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f1ea" },
-    { media: "(prefers-color-scheme: dark)", color: "#14130f" },
-  ],
+  themeColor: "#0d0c0b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${serif.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${mono.variable} ${hand.variable} h-full antialiased`}>
       <body className="grain min-h-full">{children}</body>
     </html>
   );

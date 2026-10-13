@@ -4,36 +4,24 @@
  * Design tokens. Warm paper background, near-black ink, one brick accent
  * (a nod to Flemish brick). Everything else is derived from these.
  */
+/*
+ * Design tokens. Off-black background, warm off-white text, one ember-orange
+ * accent (the lit windows of a house at dusk). Everything else derives from these.
+ */
 :root {
-  --paper: #f5f1ea;
-  --paper-raised: #fbf9f5;
-  --ink: #1c1a17;
-  --ink-soft: #57524a;
-  --ink-faint: #8f887c;
-  --line: #e3ddd2;
-  --brick: #b5482a;
-  --brick-soft: #f3e1d9;
-  --moss: #2f5d46;
-  --moss-soft: #dde9e1;
-  --shadow-card: 0 1px 2px rgb(28 26 23 / 0.04), 0 8px 24px -8px rgb(28 26 23 / 0.12);
-  --shadow-lift: 0 2px 4px rgb(28 26 23 / 0.06), 0 24px 48px -12px rgb(28 26 23 / 0.22);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #14130f;
-    --paper-raised: #1d1b17;
-    --ink: #f2ede4;
-    --ink-soft: #bdb5a8;
-    --ink-faint: #81796d;
-    --line: #2e2b25;
-    --brick: #e0714f;
-    --brick-soft: #3a2219;
-    --moss: #7fbf9c;
-    --moss-soft: #1d3127;
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
-    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.6);
-  }
+  color-scheme: dark;
+  --paper: #0d0c0b;
+  --paper-raised: #171513;
+  --ink: #eeeae3;
+  --ink-soft: #b3ada3;
+  --ink-faint: #7c766d;
+  --line: #2a2723;
+  --brick: #f26a21;
+  --brick-soft: #3a1f12;
+  --moss: #8cc4a2;
+  --moss-soft: #1b2b22;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.7);
 }
 
 @theme inline {
@@ -48,7 +36,9 @@
   --color-moss: var(--moss);
   --color-moss-soft: var(--moss-soft);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-serif), ui-serif, Georgia, serif;
+  --font-display: var(--font-plex), ui-monospace, monospace;
+  --font-mono: var(--font-plex), ui-monospace, monospace;
+  --font-hand: var(--font-caveat), cursive;
   --shadow-card: var(--shadow-card);
   --shadow-lift: var(--shadow-lift);
 }
@@ -93,6 +83,16 @@ body {
   z-index: 100;
   opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

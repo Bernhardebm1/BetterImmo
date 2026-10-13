@@ -20,7 +20,7 @@ export function SmartImage({ src, alt, className, seed = "" }: { src: string; al
   return (
     <div
       className={clsx("relative overflow-hidden", className)}
-      style={{ background: `linear-gradient(135deg, hsl(${hue} 30% 78%), hsl(${(hue + 40) % 360} 25% 62%))` }}
+      style={{ background: `linear-gradient(135deg, hsl(${hue} 14% 20%), hsl(${(hue + 40) % 360} 18% 13%))` }}
     >
       {state !== "error" && (
         // eslint-disable-next-line @next/next/no-img-element -- remote demo photos; swap for next/image once listings come from the CRM feed
@@ -40,7 +40,7 @@ export function SmartImage({ src, alt, className, seed = "" }: { src: string; al
         />
       )}
       {state === "error" && (
-        <svg viewBox="0 0 24 24" className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-white/70" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+        <svg viewBox="0 0 24 24" className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-white/25" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
           <path d="M3 10.5 12 3l9 7.5V21H3z" />
           <path d="M9 21v-6h6v6" />
         </svg>
