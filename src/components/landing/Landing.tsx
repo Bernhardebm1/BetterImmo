@@ -1,13 +1,20 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Composer } from "@/components/search/Composer";
 import { Typewriter } from "./Typewriter";
 import { ease } from "@/lib/motion";
 
-/** Swap for our own photography once we have it; a warm interior or townhouse at golden hour works best. */
-const HERO_PHOTO = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80";
+/**
+ * Townhouses in Antwerp (Kieran Child, Unsplash License), with terraced houses in
+ * Utrecht (M Polinder, Unsplash License) as a backup. Swap for our own photography later.
+ */
+const HERO_PHOTOS = [
+  "https://images.unsplash.com/photo-1782942287958-c10589dcb0e7?auto=format&fit=crop&w=2000&q=80",
+  "https://images.unsplash.com/photo-1597009513659-9366603c7e82?auto=format&fit=crop&w=2000&q=80",
+];
 
 const ADJECTIVES = ["better", "calmer", "smarter", "kinder", "simpler", "clearer"];
 
@@ -27,7 +34,7 @@ export function Landing({ loading, onSubmit }: { loading: boolean; onSubmit: (te
 
       <div className="relative z-10 flex min-h-dvh flex-col px-6 pb-8 pt-6 sm:px-12 sm:pt-8 md:w-[60%] lg:px-16">
         <motion.nav {...fade(0.05, -6)} className="flex items-center gap-8 text-white md:text-ink">
-          <span className="font-mono text-[13px] tracking-[0.45em]">BETTERIMMO</span>
+          <Logo />
           <span className="flex-1" />
           <a href="#about" className="hidden font-mono text-[13px] opacity-70 transition-opacity hover:opacity-100 md:block">
             About
@@ -53,17 +60,19 @@ export function Landing({ loading, onSubmit }: { loading: boolean; onSubmit: (te
           </motion.div>
         </div>
 
-        <motion.div {...fade(0.9, 0)} className="hidden items-stretch gap-4 md:flex">
-          <span className="w-px bg-ink/40" />
-          <p className="py-0.5 font-mono text-[11px] uppercase leading-[1.9] tracking-wide text-ink-soft">
-            Homes
-            <br />
-            described,
-            <br />
-            not filtered.
-          </p>
-        </motion.div>
       </div>
+
+      {/* Sits on the photo, bottom right. */}
+      <motion.div {...fade(0.9, 0)} className="absolute bottom-8 right-10 z-10 hidden items-stretch gap-4 text-white md:flex lg:right-14">
+        <span className="w-px bg-white/60" />
+        <p className="py-0.5 font-mono text-[11px] uppercase leading-[1.9] tracking-wide text-white/90">
+          Homes
+          <br />
+          described,
+          <br />
+          not filtered.
+        </p>
+      </motion.div>
     </motion.main>
   );
 }
@@ -73,7 +82,8 @@ export function Landing({ loading, onSubmit }: { loading: boolean; onSubmit: (te
  * on phones it sits on top. It drifts a little against the pointer.
  */
 function Photo() {
-  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const failed = attempt >= HERO_PHOTOS.length;
   const [loaded, setLoaded] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const img = useRef<HTMLImageElement>(null);
@@ -118,10 +128,11 @@ function Photo() {
         <motion.div style={{ x, y }} className="absolute -inset-[3%]">
           <motion.img
             ref={img}
-            src={HERO_PHOTO}
+            key={attempt}
+            src={HERO_PHOTOS[attempt]}
             alt=""
             onLoad={() => setLoaded(true)}
-            onError={() => setFailed(true)}
+            onError={() => setAttempt((a) => a + 1)}
             initial={false}
             animate={loaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.1 }}
             transition={{ opacity: { duration: 1, ease: ease.out }, scale: { duration: 2.6, ease: ease.out } }}
@@ -129,8 +140,9 @@ function Photo() {
           />
         </motion.div>
       )}
-      {/* Keeps the nav readable where it sits on the photo (phones). */}
+      {/* Keeps the nav (phones) and the caption (wide screens) readable on the photo. */}
       <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent md:hidden" />
+      <div className="absolute inset-x-0 bottom-0 hidden h-48 bg-gradient-to-t from-black/50 to-transparent md:block" />
     </div>
   );
 }
@@ -168,5 +180,28 @@ function ArrowNote() {
         Describe your dream home
       </motion.span>
     </div>
+  );
+}
+
+/** House outline with a blinking caret inside: describe the home, we find it. */
+export function LogoMark() {
+  return (
+    <span className="flex items-center gap-2.5">
+      <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" aria-hidden>
+        <path d="M3.5 10.6 12 3.6l8.5 7V20.4h-17z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+        <rect x="11.1" y="11.6" width="1.8" height="5.6" rx="0.5" className="fill-brick" style={{ animation: "caret-blink 1.05s steps(1) infinite" }} />
+      </svg>
+      <span className="font-mono text-[15px] font-medium tracking-[-0.01em]">
+        better<span className="font-normal opacity-60">immo</span>
+      </span>
+    </span>
+  );
+}
+
+function Logo() {
+  return (
+    <Link href="/" aria-label="BetterImmo home">
+      <LogoMark />
+    </Link>
   );
 }

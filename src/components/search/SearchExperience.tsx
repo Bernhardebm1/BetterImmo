@@ -4,7 +4,7 @@ import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "motion/react
 import { useCallback, useRef, useState } from "react";
 import { Heart, Sparkles } from "lucide-react";
 import { Composer } from "./Composer";
-import { Landing } from "@/components/landing/Landing";
+import { Landing, LogoMark } from "@/components/landing/Landing";
 import { FilterChips } from "./FilterChips";
 import { ListingSheet } from "./ListingSheet";
 import { MatchCard } from "./MatchCard";
@@ -93,8 +93,8 @@ export function SearchExperience() {
           <motion.header initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={spring.soft} className="sticky top-0 z-40">
             <div className="absolute inset-0 border-b border-transparent transition-colors duration-500 data-[on=true]:border-line data-[on=true]:bg-paper/70 data-[on=true]:backdrop-blur-xl" data-on />
             <div className="relative mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:flex-nowrap sm:px-6">
-              <button type="button" onClick={() => location.reload()} className="shrink-0 font-mono text-xs tracking-[0.4em]" aria-label="BetterImmo home">
-                BETTERIMMO
+              <button type="button" onClick={() => location.reload()} className="shrink-0" aria-label="Start a new search">
+                <LogoMark />
               </button>
               <div className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
                 <div className="mx-auto max-w-2xl">
