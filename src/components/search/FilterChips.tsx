@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import clsx from "clsx";
-import { Minus, Plus, X } from "lucide-react";
+import { ChevronDown, Minus, Plus, X } from "lucide-react";
 import { FEATURE_LABEL, TYPE_LABEL, formatPriceShort } from "@/lib/format";
 import { spring } from "@/lib/motion";
 import { EPC_LABELS, type Filters } from "@/lib/types";
@@ -55,8 +55,8 @@ export function FilterChips({ filters, onChange }: { filters: Filters; onChange:
           >
             <div
               className={clsx(
-                "flex h-9 items-center rounded-full border text-sm font-medium transition-colors duration-200",
-                open === chip.key ? "border-ink bg-ink text-paper" : "border-line bg-paper-raised text-ink hover:border-ink-faint",
+                "flex h-9 items-center rounded-full border font-mono text-[12px] transition-colors duration-200",
+                open === chip.key ? "border-ink bg-ink text-paper" : "border-ink/20 text-ink hover:border-ink/50",
               )}
             >
               <button
@@ -65,7 +65,10 @@ export function FilterChips({ filters, onChange }: { filters: Filters; onChange:
                 onClick={() => chip.editor && setOpen(open === chip.key ? null : chip.key)}
                 aria-expanded={chip.editor ? open === chip.key : undefined}
               >
-                {chip.label}
+                <span className="flex items-center gap-1.5">
+                  {chip.label}
+                  {chip.editor && <ChevronDown className={clsx("h-3 w-3 opacity-60 transition-transform duration-300", open === chip.key && "rotate-180")} />}
+                </span>
               </button>
               <button
                 type="button"
@@ -183,7 +186,7 @@ function PriceEditor({ filters, onChange }: { filters: Filters; onChange: (f: Fi
     <div>
       <div className="mb-3 flex items-baseline justify-between">
         <span className="text-sm text-ink-soft">Maximum price</span>
-        <span className="font-display text-2xl tabular-nums">{formatPriceShort(max)}</span>
+        <span className="font-mono text-xl tabular-nums">{formatPriceShort(max)}</span>
       </div>
       <input
         type="range"

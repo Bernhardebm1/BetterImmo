@@ -18,6 +18,18 @@
   --moss-soft: #dcebe1;
   --shadow-card: 0 1px 2px rgb(29 28 26 / 0.04), 0 8px 24px -8px rgb(29 28 26 / 0.12);
   --shadow-lift: 0 2px 4px rgb(29 28 26 / 0.06), 0 24px 48px -12px rgb(29 28 26 / 0.22);
+  /* Primary call to action: ember in light, cream in dark (as in Max's references). */
+  --cta: #f26a21;
+  --cta-ink: #ffffff;
+  --map-sea: #dfe6e8;
+  --map-land: #ebe6dd;
+  --map-home: #f6f2ec;
+  --map-border: #cfc6b8;
+  --map-road: #ddd2c0;
+  --map-river: #cfdade;
+  --map-label: #6f695f;
+  --pin: #fbf9f5;
+  --pin-border: #8d877d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,6 +47,17 @@
     --moss-soft: #22322a;
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 24px -8px rgb(0 0 0 / 0.45);
     --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.6);
+    --cta: #f3ede4;
+    --cta-ink: #1d2220;
+    --map-sea: #131716;
+    --map-land: #1f2523;
+    --map-home: #262d2a;
+    --map-border: #3a433f;
+    --map-road: #343d39;
+    --map-river: #1b2423;
+    --map-label: #9aa19c;
+    --pin: #e9e4dc;
+    --pin-border: #e9e4dc;
   }
 }
 
@@ -49,10 +72,13 @@
   --color-brick-soft: var(--brick-soft);
   --color-moss: var(--moss);
   --color-moss-soft: var(--moss-soft);
+  --color-cta: var(--cta);
+  --color-cta-ink: var(--cta-ink);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-plex), ui-monospace, monospace;
   --font-mono: var(--font-plex), ui-monospace, monospace;
   --font-hand: var(--font-caveat), cursive;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
   --shadow-card: var(--shadow-card);
   --shadow-lift: var(--shadow-lift);
 }

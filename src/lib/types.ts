@@ -18,9 +18,13 @@ export type EpcLabel = (typeof EPC_LABELS)[number];
 export type Listing = {
   id: string;
   title: string;
+  /** Street name only; the house number is shared once a viewing is booked. */
+  street: string;
   type: PropertyType;
   city: string;
   neighbourhood: string;
+  lat: number;
+  lng: number;
   price: number;
   bedrooms: number;
   bathrooms: number;

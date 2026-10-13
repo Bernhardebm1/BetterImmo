@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, IBM_Plex_Mono, Inter } from "next/font/google";
+import { Caveat, IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,6 +11,12 @@ const mono = IBM_Plex_Mono({
   variable: "--font-plex",
   subsets: ["latin"],
   weight: ["300", "400", "500"],
+});
+
+const serif = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  weight: ["300", "400"],
 });
 
 const hand = Caveat({
@@ -34,7 +40,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable} ${hand.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${mono.variable} ${hand.variable} ${serif.variable} h-full antialiased`}>
       <body className="grain min-h-full">{children}</body>
     </html>
   );

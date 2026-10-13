@@ -10,7 +10,7 @@ const epcRank = (l: string) => EPC_LABELS.indexOf(l as (typeof EPC_LABELS)[numbe
  * Hard filters (city, type, budget with 5% headroom, bedrooms, size, EPC) decide what is shown;
  * wanted features rank the rest. Listings under offer are hidden by default.
  */
-export function findMatches(f: Filters, exclude: string[] = [], limit = 6): { matches: Match[]; total: number } {
+export function findMatches(f: Filters, exclude: string[] = [], limit = 8): { matches: Match[]; total: number } {
   const candidates = LISTINGS.filter((l) => {
     if (l.status !== "available") return false;
     if (exclude.includes(l.id)) return false;
