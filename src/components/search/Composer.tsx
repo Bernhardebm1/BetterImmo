@@ -47,10 +47,10 @@ export function Composer({
         submit();
       }}
       className={clsx(
-        "group relative flex w-full items-center gap-3 border border-ink/15 bg-paper-raised/60 backdrop-blur-xl",
+        "group relative flex w-full items-center gap-3 border border-ink/15",
         "transition-[border-color,background-color,box-shadow] duration-300",
-        "focus-within:border-ink/35 focus-within:bg-paper-raised/80 focus-within:shadow-[0_0_0_4px_rgb(242_106_33/0.08)]",
-        hero ? "rounded-lg p-2.5 pl-5 shadow-card" : "rounded-xl p-1.5 pl-4",
+        "focus-within:border-ink/35 focus-within:shadow-[0_0_0_4px_rgb(251_116_41/0.08)]",
+        hero ? "rounded-lg bg-paper-raised/60 p-2.5 pl-5 shadow-card backdrop-blur-xl focus-within:bg-paper-raised/80" : "rounded-full p-1 pl-4 focus-within:bg-paper-raised/60",
       )}
     >
       <textarea
@@ -58,7 +58,7 @@ export function Composer({
         rows={1}
         value={value}
         autoFocus={autoFocus}
-        placeholder={placeholder ?? "Refine your search, e.g. “add a garden” or “max 400k”"}
+        placeholder={placeholder ?? "Refine, e.g. “add a garden” or “max 400k”"}
         aria-label="Describe the home you're looking for"
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {
@@ -68,8 +68,8 @@ export function Composer({
           }
         }}
         className={clsx(
-          "block min-w-0 flex-1 resize-none overflow-hidden bg-transparent font-mono text-ink caret-brick outline-none placeholder:truncate placeholder:text-ink-faint focus-visible:outline-none",
-          hero ? "h-7 py-0.5 text-sm leading-6" : "h-6 text-sm leading-6",
+          "block min-w-0 flex-1 resize-none overflow-hidden bg-transparent text-ink caret-brick outline-none placeholder:truncate placeholder:text-ink-faint focus-visible:outline-none",
+          hero ? "h-7 py-0.5 font-mono text-sm leading-6" : "h-6 text-[13px] leading-6",
         )}
       />
       <motion.button

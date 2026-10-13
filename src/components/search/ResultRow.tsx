@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { forwardRef } from "react";
 import clsx from "clsx";
-import { ArrowRight, Bath, BedDouble, Maximize2, X } from "lucide-react";
+import { ArrowRight, Bath, BedDouble, SquareArrowOutUpRight, X } from "lucide-react";
 import { SmartImage } from "@/components/SmartImage";
 import { HeartButton } from "@/components/listing/HeartButton";
 import { formatPrice } from "@/lib/format";
@@ -17,7 +17,7 @@ export const ResultRow = forwardRef<
   HTMLElement,
   { match: Match; index: number; active: boolean; onHover: (on: boolean) => void; onPass: () => void }
 >(function ResultRow({ match, index, active, onHover, onPass }, ref) {
-  const { listing: l, reasons, misses } = match;
+  const { listing: l, reasons } = match;
   return (
     <motion.article
       ref={ref}
@@ -29,11 +29,11 @@ export const ResultRow = forwardRef<
       onPointerEnter={() => onHover(true)}
       onPointerLeave={() => onHover(false)}
       className={clsx(
-        "group relative flex min-w-0 gap-4 rounded-xl border p-2.5 transition-[border-color,background-color,box-shadow] duration-300 sm:gap-5",
-        active ? "border-brick/70 bg-paper-raised shadow-card" : "border-transparent hover:border-line hover:bg-paper-raised/60",
+        "group relative flex min-w-0 items-center gap-4 rounded-[6px] border p-2 transition-[border-color,background-color] duration-300 sm:gap-5",
+        active ? "border-select bg-paper-raised" : "border-transparent",
       )}
     >
-      <div className="relative aspect-[16/11] w-[42%] max-w-[200px] shrink-0 overflow-hidden rounded-lg">
+      <div className="relative aspect-[190/116] w-[42%] max-w-[200px] shrink-0 overflow-hidden rounded-[4px]">
         <SmartImage src={l.images[0]} alt="" seed={l.id} className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
         <HeartButton id={l.id} className="absolute right-2 top-2 z-10" />
         <button
@@ -41,49 +41,44 @@ export const ResultRow = forwardRef<
           onClick={onPass}
           aria-label={`Not for me: ${l.street}`}
           title="Not for me"
-          className="absolute left-2 top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-black/25 text-white opacity-0 backdrop-blur-md transition hover:bg-black/45 focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+          className="absolute left-2 top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-black/30 text-white opacity-0 backdrop-blur-md transition hover:bg-black/50 focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
         >
-          <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+          <X className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col py-1.5">
-        <h3 className="truncate text-[15px] font-medium text-ink">
-          <Link href={`/homes/${l.id}`} onClick={markFromResults} className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <h3 className="truncate text-[14px] text-ink sm:text-[15px]">
+          <Link href={`/homes/${l.id}`} onClick={markFromResults} className="after:absolute after:inset-0 after:rounded-[6px] focus-visible:outline-none">
             {l.city}, {l.neighbourhood}
           </Link>
         </h3>
-        <p className="mt-1 font-mono text-[15px] tabular-nums text-ink">{formatPrice(l.price)}</p>
-        <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-ink-soft">
+        <p className="mt-1.5 font-figures text-[15px] tabular-nums text-ink sm:text-[16px]">{formatPrice(l.price)}</p>
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-soft sm:text-[12px]">
           <li className="flex items-center gap-1.5">
-            <BedDouble className="h-3.5 w-3.5 text-ink-faint" />
+            <BedDouble className="h-3.5 w-3.5" strokeWidth={1.5} />
             {l.bedrooms ? `${l.bedrooms} beds` : "Studio"}
           </li>
           <li className="flex items-center gap-1.5">
-            <Bath className="h-3.5 w-3.5 text-ink-faint" />
+            <Bath className="h-3.5 w-3.5" strokeWidth={1.5} />
             {l.bathrooms} {l.bathrooms === 1 ? "bath" : "baths"}
           </li>
           <li className="flex items-center gap-1.5">
-            <Maximize2 className="h-3 w-3 text-ink-faint" />
+            <SquareArrowOutUpRight className="h-3 w-3" strokeWidth={1.5} />
             {l.area} m²
           </li>
         </ul>
-        {(reasons.length > 0 || misses.length > 0) && (
-          <p className="mt-auto truncate pt-2 font-mono text-[11px]">
-            <span className="text-brick">{reasons.slice(0, 2).join(" · ")}</span>
-            {misses.length > 0 && <span className="text-ink-faint">{reasons.length ? " · " : ""}{misses[0]}</span>}
-          </p>
-        )}
+        {reasons[0] && <p className="mt-2 truncate text-[11px] text-brick">{reasons.slice(0, 2).join(" · ")}</p>}
       </div>
 
       <span
         aria-hidden
         className={clsx(
-          "mr-1.5 hidden h-9 w-9 shrink-0 self-center sm:grid place-items-center rounded-full border transition-colors duration-300",
-          active ? "border-brick bg-brick text-white" : "border-ink/20 text-ink",
+          "mr-2 hidden h-9 w-9 shrink-0 place-items-center rounded-full border transition-colors duration-300 sm:grid",
+          active ? "border-ink/60 text-ink" : "border-ink/25 text-ink",
         )}
       >
-        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" strokeWidth={1.5} />
       </span>
     </motion.article>
   );

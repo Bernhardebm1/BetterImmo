@@ -1,63 +1,80 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Light: warm off-white. Dark: deep charcoal with a hint of green.
+ * Design tokens, sampled from Max's reference designs.
+ * Light: warm off-white with cool ink. Dark: blue-black with cream accents.
  * One ember-orange accent in both. Everything else derives from these.
  */
 :root {
   color-scheme: light;
-  --paper: #f2ede5;
-  --paper-raised: #fbf9f5;
-  --ink: #1d1c1a;
-  --ink-soft: #57534c;
-  --ink-faint: #8d877d;
-  --line: #e0d9ce;
-  --brick: #f26a21;
-  --brick-soft: #fbe2d2;
+  --paper: #f8f5f0;
+  --paper-raised: #fdfbf8;
+  --ink: #232933;
+  --ink-soft: #5d636c;
+  --ink-faint: #9a9ea4;
+  --line: #e7e3dc;
+  --brick: #fb7429;
+  --brick-soft: #fde4d4;
   --moss: #2f6b4b;
   --moss-soft: #dcebe1;
-  --shadow-card: 0 1px 2px rgb(29 28 26 / 0.04), 0 8px 24px -8px rgb(29 28 26 / 0.12);
-  --shadow-lift: 0 2px 4px rgb(29 28 26 / 0.06), 0 24px 48px -12px rgb(29 28 26 / 0.22);
-  /* Primary call to action: ember in light, cream in dark (as in Max's references). */
-  --cta: #f26a21;
+  --shadow-card: 0 1px 2px rgb(35 41 51 / 0.05), 0 8px 24px -10px rgb(35 41 51 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(35 41 51 / 0.06), 0 24px 48px -12px rgb(35 41 51 / 0.22);
+  /* Primary call to action: ember in light, cream in dark. */
+  --cta: #fb7429;
   --cta-ink: #ffffff;
-  --map-sea: #dfe6e8;
-  --map-land: #ebe6dd;
-  --map-home: #f6f2ec;
-  --map-border: #cfc6b8;
-  --map-road: #ddd2c0;
-  --map-river: #cfdade;
-  --map-label: #6f695f;
-  --pin: #fbf9f5;
-  --pin-border: #8d877d;
+  /* Selected list row and active pin ring. */
+  --select: #fb7429;
+  --toggle: #232933;
+  --tab: #ffffff;
+  --tab-ink: #232933;
+  /* Buttons that sit on photos. */
+  --glass: rgb(255 255 255 / 0.88);
+  --glass-ink: #232933;
+  --glass-line: transparent;
+  --map-sea: #e2e9ee;
+  --map-land: #f6f3ed;
+  --map-home: #f6f3ed;
+  --map-border: #d8d3ca;
+  --map-road: #e9e4db;
+  --map-river: #e2e9ee;
+  --map-label: #4a505a;
+  --pin: #ffffff;
+  --pin-border: #b9b5ae;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --paper: #1d2220;
-    --paper-raised: #252b28;
-    --ink: #ece8e1;
-    --ink-soft: #b2aea6;
-    --ink-faint: #7f8580;
-    --line: #333a36;
-    --brick: #f26a21;
-    --brick-soft: #3d2416;
+    --paper: #12191c;
+    --paper-raised: #172024;
+    --ink: #f4f1ec;
+    --ink-soft: #b4b8b9;
+    --ink-faint: #737b7f;
+    --line: #232a2d;
+    --brick: #fb7429;
+    --brick-soft: #3a2418;
     --moss: #8cc4a2;
-    --moss-soft: #22322a;
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 24px -8px rgb(0 0 0 / 0.45);
-    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.6);
-    --cta: #f3ede4;
-    --cta-ink: #1d2220;
-    --map-sea: #131716;
-    --map-land: #1f2523;
-    --map-home: #262d2a;
-    --map-border: #3a433f;
-    --map-road: #343d39;
-    --map-river: #1b2423;
-    --map-label: #9aa19c;
-    --pin: #e9e4dc;
-    --pin-border: #e9e4dc;
+    --moss-soft: #1f2e28;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -12px rgb(0 0 0 / 0.65);
+    --cta: #f6eee7;
+    --cta-ink: #12191c;
+    --select: #e3b58f;
+    --toggle: #f6eee7;
+    --tab: #f6eee7;
+    --tab-ink: #12191c;
+    --glass: rgb(14 20 23 / 0.55);
+    --glass-ink: #f4f1ec;
+    --glass-line: rgb(255 255 255 / 0.22);
+    --map-sea: #161d20;
+    --map-land: #262e32;
+    --map-home: #262e32;
+    --map-border: #3a4448;
+    --map-road: #343e42;
+    --map-river: #161d20;
+    --map-label: #e9e6e1;
+    --pin: #ece4da;
+    --pin-border: #ece4da;
   }
 }
 
@@ -74,7 +91,12 @@
   --color-moss-soft: var(--moss-soft);
   --color-cta: var(--cta);
   --color-cta-ink: var(--cta-ink);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-select: var(--select);
+  --color-glass: var(--glass);
+  --color-glass-ink: var(--glass-ink);
+  --color-glass-line: var(--glass-line);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-figures: var(--font-geist-mono), ui-monospace, monospace;
   --font-display: var(--font-plex), ui-monospace, monospace;
   --font-mono: var(--font-plex), ui-monospace, monospace;
   --font-hand: var(--font-caveat), cursive;

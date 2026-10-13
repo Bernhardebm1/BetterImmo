@@ -22,13 +22,13 @@ export function HeartButton({ id, className, size = "sm" }: { id: string; classN
         toggleShortlist(id);
       }}
       className={clsx(
-        "relative grid place-items-center rounded-full backdrop-blur-md transition-colors",
-        size === "lg" ? "h-12 w-12 border border-white/25 bg-black/25 text-white hover:bg-black/40" : "h-7 w-7 bg-black/25 text-white hover:bg-black/45",
+        "relative grid place-items-center rounded-full backdrop-blur-md transition-[background-color,opacity]",
+        size === "lg" ? "h-12 w-12" : "h-7 w-7 border border-white/30 bg-black/25 text-white hover:bg-black/45",
         className,
       )}
     >
       <motion.span key={String(saved)} initial={{ scale: saved ? 0.4 : 1 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 600, damping: 14 }}>
-        <Heart className={clsx(size === "lg" ? "h-5 w-5" : "h-3.5 w-3.5", saved && "fill-brick text-brick")} strokeWidth={2} />
+        <Heart className={clsx(size === "lg" ? "h-5 w-5" : "h-3.5 w-3.5", saved && "fill-brick text-brick")} strokeWidth={1.75} />
       </motion.span>
       <AnimatePresence>{saved && <Burst radius={size === "lg" ? 30 : 20} />}</AnimatePresence>
     </motion.button>

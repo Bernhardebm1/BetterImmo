@@ -130,7 +130,7 @@ export function BelgiumMap({
     >
       <motion.svg viewBox={viewBox} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full" aria-hidden>
         {Object.entries(COUNTRIES).map(([id, d]) => (
-          <path key={id} d={d} fill={id === "be" ? "var(--map-home)" : "var(--map-land)"} stroke="var(--map-border)" strokeWidth={id === "be" ? 1.4 : 0.8} vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+          <path key={id} d={d} fill="var(--map-land)" stroke="var(--map-border)" strokeWidth={0.9} vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
         ))}
         {RIVERS.map((d, i) => (
           <path key={`r${i}`} d={d} fill="none" stroke="var(--map-river)" strokeWidth={2.2} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
@@ -144,7 +144,7 @@ export function BelgiumMap({
         <div className="pointer-events-none absolute inset-0">
           {REGIONS.map((r) => (
             <Place key={r.name} cam={cam} size={size} xy={project(r.lat, r.lng)}>
-              <span className="-translate-x-1/2 font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--map-label)] opacity-60">{r.name}</span>
+              <span className="-translate-x-1/2 text-[10px] uppercase tracking-[0.3em] text-[var(--map-label)] opacity-50">{r.name}</span>
             </Place>
           ))}
           {CITIES.map((c) => (
@@ -152,7 +152,7 @@ export function BelgiumMap({
               {/* Name sits up and to the right of the town, so pins on the town itself stay clear. */}
               <span className="flex -translate-x-[2px] -translate-y-full items-end gap-1.5">
                 <span className="mb-[-2px] h-1 w-1 shrink-0 rounded-full bg-[var(--map-label)] opacity-50" />
-                <span className={clsx("mb-2 whitespace-nowrap font-mono text-[var(--map-label)]", c.major ? "text-[13px]" : "text-[11px] opacity-80")}>{c.name}</span>
+                <span className={clsx("mb-2 whitespace-nowrap text-[var(--map-label)]", c.major ? "text-[14px]" : "text-[12px] opacity-80")}>{c.name}</span>
               </span>
             </Place>
           ))}
@@ -164,17 +164,21 @@ export function BelgiumMap({
         </div>
       )}
 
-      {interactive && (
-        <div className="absolute bottom-5 right-5 flex flex-col overflow-hidden rounded-full border border-line bg-paper-raised/90 shadow-card backdrop-blur">
-          <button type="button" aria-label="Zoom in" onClick={() => zoom(0.7)} className="grid h-9 w-9 place-items-center text-ink-soft hover:text-ink">
-            <Plus className="h-4 w-4" />
-          </button>
-          <span className="mx-2 h-px bg-line" />
-          <button type="button" aria-label="Zoom out" onClick={() => zoom(1.4)} className="grid h-9 w-9 place-items-center text-ink-soft hover:text-ink">
-            <Minus className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      {interactive && <ZoomControls onIn={() => zoom(0.7)} onOut={() => zoom(1.4)} />}
+    </div>
+  );
+}
+
+export function ZoomControls({ onIn, onOut }: { onIn: () => void; onOut: () => void }) {
+  return (
+    <div className="absolute bottom-5 right-5 z-20 flex flex-col overflow-hidden rounded-full border border-ink/15 bg-paper/85 backdrop-blur">
+      <button type="button" aria-label="Zoom in" onClick={onIn} className="grid h-9 w-9 place-items-center text-ink-soft hover:text-ink">
+        <Plus className="h-4 w-4" strokeWidth={1.75} />
+      </button>
+      <span className="mx-2 h-px bg-ink/10" />
+      <button type="button" aria-label="Zoom out" onClick={onOut} className="grid h-9 w-9 place-items-center text-ink-soft hover:text-ink">
+        <Minus className="h-4 w-4" strokeWidth={1.75} />
+      </button>
     </div>
   );
 }
@@ -190,7 +194,7 @@ function Place({ cam, size, xy, z = 1, children }: { cam: Camera; size: { w: num
   );
 }
 
-function PinDot({ label, active, onHover, onSelect }: { label: string; active: boolean; onHover: (on: boolean) => void; onSelect: () => void }) {
+export function PinDot({ label, active, onHover, onSelect }: { label: string; active: boolean; onHover: (on: boolean) => void; onSelect: () => void }) {
   return (
     <div className="relative -translate-x-1/2 -translate-y-1/2">
       <button
@@ -204,18 +208,24 @@ function PinDot({ label, active, onHover, onSelect }: { label: string; active: b
         className="pointer-events-auto relative grid h-8 w-8 place-items-center"
       >
         <motion.span
-          className="absolute rounded-full border border-brick/60"
+          className="absolute rounded-full border-[1.5px] border-[var(--select)]"
           initial={false}
-          animate={active ? { width: 34, height: 34, opacity: 1 } : { width: 18, height: 18, opacity: 0 }}
+          animate={active ? { width: 36, height: 36, opacity: 1 } : { width: 16, height: 16, opacity: 0 }}
           transition={{ type: "spring", stiffness: 420, damping: 26 }}
         />
         <motion.span
-          className="relative rounded-full border-[1.5px] shadow-[0_1px_4px_rgb(0_0_0/0.18)]"
+          className="absolute rounded-full bg-[var(--pin)]"
+          initial={false}
+          animate={active ? { width: 0, height: 0, opacity: 0 } : { width: 22, height: 22, opacity: 0.22 }}
+          transition={{ type: "spring", stiffness: 420, damping: 26 }}
+        />
+        <motion.span
+          className="relative rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]"
           initial={{ scale: 0 }}
           animate={
             active
-              ? { scale: 1, width: 20, height: 20, backgroundColor: "var(--brick)", borderColor: "var(--brick)" }
-              : { scale: 1, width: 15, height: 15, backgroundColor: "var(--pin)", borderColor: "var(--pin-border)" }
+              ? { scale: 1, width: 16, height: 16, backgroundColor: "var(--brick)", boxShadow: "0 0 0 1.5px var(--brick)" }
+              : { scale: 1, width: 12, height: 12, backgroundColor: "var(--pin)", boxShadow: "0 0 0 1.5px var(--pin-border)" }
           }
           transition={{ type: "spring", stiffness: 420, damping: 26 }}
         />
@@ -227,7 +237,7 @@ function PinDot({ label, active, onHover, onSelect }: { label: string; active: b
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.9, transition: { duration: 0.12 } }}
             transition={{ type: "spring", stiffness: 520, damping: 32 }}
-            className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 font-mono text-[11px] text-paper shadow-card"
+            className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 font-figures text-[11px] text-paper shadow-card"
           >
             {label}
           </motion.span>
