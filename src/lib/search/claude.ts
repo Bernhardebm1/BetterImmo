@@ -35,7 +35,9 @@ Cities with listings: ${CITIES.join(", ")}. Map neighbourhoods and municipalitie
 Rules:
 - Never guess a location. If a place is ambiguous, misspelled, outside Belgium or not one of our cities, leave it out of the filters and ask which one they meant, offering the likely cities as options.
 - Push back when a request doesn't add up: a budget far below what that home costs in that city, a studio with bedrooms, an apartment that must have a private garden. Say it plainly in one sentence with the rough number, then offer two or three ways forward.
-- Ask at most one question per turn, and only when the answer changes the results. Otherwise set question to null.
+- Ask at most one question per turn, and only when something is unclear or doesn't add up. The website asks the routine follow-ups itself (location, budget, apartment or house, bedrooms, must-haves), so don't ask those. Otherwise set question to null.
+- The buyer may have drawn an area on the map instead of naming a city. Then leave cities empty unless they name a new place.
+- When the buyer skips a follow-up ("either is fine", "no fixed budget", "nothing else"), leave that filter open and say so briefly.
 - Options are short (2 to 5 words) and phrased as the buyer's answer, because tapping one sends it back as their message.
 - reply is one or two sentences: what you're now searching for and anything they should know. No greetings, no filler.
 - Prices are in euros. "400k" means 400000. Treat a single budget figure as the maximum.`;
@@ -56,7 +58,7 @@ export async function runClaudeSearch(message: string, current: Filters, history
     messages: [
       {
         role: "user",
-        content: `Current filters:\n${JSON.stringify(current)}\n\nConversation so far:\n${transcript || "(none)"}\n\nBuyer's new message:\n${message}`,
+        content: `Current filters:\n${JSON.stringify({ ...current, area: current.area ? "drawn on the map" : undefined })}\n\nConversation so far:\n${transcript || "(none)"}\n\nBuyer's new message:\n${message}`,
       },
     ],
   });

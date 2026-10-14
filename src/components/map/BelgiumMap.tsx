@@ -5,9 +5,24 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
 import { COUNTRIES, MAP } from "@/lib/map/geometry";
-import { CITIES, REGIONS, RIVERS, ROADS, project } from "@/lib/map/project";
+import { CITIES, REGIONS, RIVERS, ROADS, project, unproject } from "@/lib/map/project";
+import { DrawLayer, areaPath } from "./DrawLayer";
 
 export type Pin = { id: string; lat: number; lng: number; label: string };
+
+export type MapProps = {
+  pins: Pin[];
+  active?: string | null;
+  onHover?: (id: string | null) => void;
+  onSelect?: (id: string) => void;
+  interactive?: boolean;
+  className?: string;
+  /** A drawn search area, as [lng, lat] points. */
+  area?: [number, number][];
+  /** Dragging draws an area instead of moving the map. */
+  drawing?: boolean;
+  onDraw?: (area: [number, number][]) => void;
+};
 
 const CAMERA = { stiffness: 120, damping: 26, mass: 1 };
 /** Closest zoom, in map units across the shorter side. */
@@ -21,21 +36,7 @@ type Camera = { x: MotionValue<number>; y: MotionValue<number>; w: MotionValue<n
  * as texture, and HTML pins on top so they stay crisp at every zoom. It glides to fit
  * whatever is pinned, and can be dragged and zoomed.
  */
-export function BelgiumMap({
-  pins,
-  active,
-  onHover,
-  onSelect,
-  interactive = true,
-  className,
-}: {
-  pins: Pin[];
-  active?: string | null;
-  onHover?: (id: string | null) => void;
-  onSelect?: (id: string) => void;
-  interactive?: boolean;
-  className?: string;
-}) {
+export function BelgiumMap({ pins, active, onHover, onSelect, interactive = true, className, area, drawing, onDraw }: MapProps) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   // Camera: top-left corner and width of the visible area, in map units.
@@ -47,6 +48,7 @@ export function BelgiumMap({
   const viewBox = useTransform([cam.x, cam.y, cam.w], ([x, y, w]: number[]) => `${x} ${y} ${w} ${w * aspect}`);
 
   const points = useMemo(() => pins.map((p) => ({ ...p, xy: project(p.lat, p.lng) })), [pins]);
+  const areaXY = useMemo(() => area?.map(([lng, lat]) => project(lat, lng)), [area]);
 
   useEffect(() => {
     const el = box.current;
@@ -57,11 +59,12 @@ export function BelgiumMap({
   }, []);
 
   // Glide to fit the pins whenever they (or the panel size) change.
-  const fitKey = points.map((p) => p.id).join(",");
+  const fitKey = points.map((p) => p.id).join(",") + (area ? area.length + ":" + area[0].join() : "");
   useEffect(() => {
     if (!size.w) return;
-    const xs = points.map((p) => p.xy[0]);
-    const ys = points.map((p) => p.xy[1]);
+    const all = [...points.map((p) => p.xy), ...(areaXY ?? [])];
+    const xs = all.map((p) => p[0]);
+    const ys = all.map((p) => p[1]);
     let [x0, x1, y0, y1] = xs.length ? [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)] : [40, 960, 30, 730];
     const padX = Math.max(60, (x1 - x0) * 0.3);
     const padY = Math.max(60, (y1 - y0) * 0.3);
@@ -138,6 +141,9 @@ export function BelgiumMap({
         {ROADS.map((d, i) => (
           <path key={`m${i}`} d={d} fill="none" stroke="var(--map-road)" strokeWidth={1.3} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
         ))}
+        {areaXY && (
+          <path d={areaPath(areaXY)} fill="var(--brick)" fillOpacity={0.1} stroke="var(--brick)" strokeWidth={2} strokeDasharray="6 5" vectorEffect="non-scaling-stroke" />
+        )}
       </motion.svg>
 
       {size.w > 0 && (
@@ -162,6 +168,15 @@ export function BelgiumMap({
             </Place>
           ))}
         </div>
+      )}
+
+      {drawing && size.w > 0 && (
+        <DrawLayer
+          onDone={(pts) => {
+            const unit = cam.w.get() / size.w;
+            onDraw?.(pts.map(([x, y]) => unproject(cam.x.get() + x * unit, cam.y.get() + y * unit)));
+          }}
+        />
       )}
 
       {interactive && <ZoomControls onIn={() => zoom(0.7)} onOut={() => zoom(1.4)} />}

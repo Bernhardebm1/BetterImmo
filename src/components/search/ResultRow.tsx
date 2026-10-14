@@ -53,7 +53,7 @@ export const ResultRow = forwardRef<
             {l.city}, {l.neighbourhood}
           </Link>
         </h3>
-        <p className="mt-1.5 font-figures text-[15px] tabular-nums text-ink sm:text-[16px]">{formatPrice(l.price)}</p>
+        <p className="mt-1.5 font-figures text-[15px] font-medium text-ink sm:text-[16px]">{formatPrice(l.price)}</p>
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-soft sm:text-[12px]">
           <li className="flex items-center gap-1.5">
             <BedDouble className="h-3.5 w-3.5" strokeWidth={1.5} />

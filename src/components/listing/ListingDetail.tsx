@@ -58,11 +58,11 @@ export function ListingDetail({ listing: l, similar }: { listing: Listing; simil
       <div className="mx-auto max-w-[1280px] px-5 pt-7 sm:px-10 sm:pt-8">
         <div className="flex items-start justify-between gap-10">
           <Rise delay={0.1}>
-            <p className="font-figures text-[12px] tracking-[0.08em] text-ink">
+            <p className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">
               {l.city}, {l.neighbourhood}
             </p>
             <h1 className="mt-2 font-serif text-[clamp(38px,4.4vw,56px)] font-normal leading-[1.05] tracking-[-0.01em]">{l.street}</h1>
-            <p className="mt-2 font-figures text-[22px] tabular-nums">{formatPrice(l.price)}</p>
+            <p className="mt-2 font-figures text-[22px] font-medium">{formatPrice(l.price)}</p>
           </Rise>
           <Rise delay={0.18} className="hidden w-[300px] shrink-0 pt-2 lg:block">
             <Actions listing={l} />

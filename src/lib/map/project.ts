@@ -7,6 +7,13 @@ export function project(lat: number, lng: number): [number, number] {
   return [λ * MAP.scale + MAP.tx, -Math.log(Math.tan(Math.PI / 4 + φ / 2)) * MAP.scale + MAP.ty];
 }
 
+/** Map units back to [lng, lat]. */
+export function unproject(x: number, y: number): [number, number] {
+  const λ = (x - MAP.tx) / MAP.scale;
+  const φ = 2 * Math.atan(Math.exp(-(y - MAP.ty) / MAP.scale)) - Math.PI / 2;
+  return [(λ * 180) / Math.PI, (φ * 180) / Math.PI];
+}
+
 /** Smooth path through points (Catmull-Rom as cubic Béziers). */
 function smooth(points: [number, number][]): string {
   const p = points.map(([lat, lng]) => project(lat, lng));

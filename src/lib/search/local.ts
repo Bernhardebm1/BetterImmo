@@ -10,7 +10,7 @@ import {
   cityFromWord,
   closestCity,
 } from "../places";
-import type { EpcLabel, Feature, Filters, PropertyType, Question, SearchResponse, SearchTurn } from "../types";
+import type { EpcLabel, Feature, Filters, PropertyType, Question, SearchResponse } from "../types";
 
 const TYPE_WORDS: [RegExp, PropertyType][] = [
   [/\b(apartments?|appartements?|appartments?|flats?)\b/, "apartment"],
@@ -140,7 +140,7 @@ function cheapestCityFor(f: Filters): string | undefined {
     .sort((a, b) => PRICE_PER_M2[a][kind] - PRICE_PER_M2[b][kind])[0];
 }
 
-export function runLocalSearch(message: string, current: Filters, history: SearchTurn[]): SearchResponse {
+export function runLocalSearch(message: string, current: Filters): SearchResponse {
   const text = message.toLowerCase();
   const next: Filters = {
     ...current,
@@ -213,11 +213,12 @@ export function runLocalSearch(message: string, current: Filters, history: Searc
   const epc = text.match(/\bepc\s*(?:label\s*)?([a-f])\b/);
   if (epc) next.maxEpc = epc[1].toUpperCase() as EpcLabel;
   else if (/energy[- ]efficient|energiezuinig|low energy|well insulated|zuinig/.test(text)) next.maxEpc = "B";
-  if (/\b(station|train|trein|gare|commute by train)\b/.test(text)) next.nearStation = true;
+  if (/station not needed|no station|without (?:a )?station/.test(text)) next.nearStation = undefined;
+  else if (/\b(station|train|trein|gare|commute by train)\b/.test(text)) next.nearStation = true;
+  if (/any energy label|any epc/.test(text)) next.maxEpc = undefined;
 
   // Clarifying questions, most important first. One per turn.
   let question: Question | null = null;
-  const hasAnsweredLocation = anywhere || history.some((t) => t.role === "buyer" && /anywhere/i.test(t.text));
 
   if (places.unknown.length) {
     const word = places.unknown[0];
@@ -262,18 +263,18 @@ export function runLocalSearch(message: string, current: Filters, history: Searc
         text: "Apartments with a private garden are rare. Would a big terrace work, or should I include houses?",
         options: ["Terrace is fine", "Look at houses too", "Must be a garden"],
       };
-    } else if (!next.cities.length && !hasAnsweredLocation) {
-      question = {
-        text: "Where would you like to live? I'm showing all of Belgium for now.",
-        options: [...CITIES.slice(0, 4).map((c) => `Try ${c}`), "Anywhere in Belgium"],
-      };
     }
   }
 
   const changed = JSON.stringify(next) !== JSON.stringify(current);
-  const reply = changed
-    ? `Looking for ${describeFilters(next)}.${notes.length ? " " + notes.join(" ") : ""}`
-    : "I didn't catch anything new there. Try a city, a budget, the number of bedrooms or something like a garden.";
+  const skipped = /either|no preference|nothing else|that's everything|no fixed budget|doesn't matter|any number|not sure/.test(text);
+  const reply = /area i drew|drawn area/.test(text)
+    ? "Searching inside the area you drew."
+    : changed
+      ? `Looking for ${describeFilters(next)}.${notes.length ? " " + notes.join(" ") : ""}`
+      : skipped
+        ? "Fine, I'll leave that open."
+        : "I didn't catch anything new there. Try a city, a budget, the number of bedrooms or something like a garden.";
 
   return { filters: next, reply, question, source: "local" };
 }

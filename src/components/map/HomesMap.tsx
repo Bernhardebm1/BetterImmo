@@ -4,14 +4,15 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import clsx from "clsx";
 import type { Map as MapLibreMap, StyleSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { BelgiumMap, PinDot, ZoomControls, type Pin } from "./BelgiumMap";
+import { BelgiumMap, PinDot, ZoomControls, type MapProps } from "./BelgiumMap";
+import { DrawLayer, areaPath } from "./DrawLayer";
 
 /**
  * Street map from OpenFreeMap (free, no key, OpenStreetMap data), styled to match the
  * site. If the tiles can't load (offline, blocked, no WebGL), it falls back to our own
  * SVG map of Belgium so there is always a map.
  */
-export function HomesMap(props: { pins: Pin[]; active?: string | null; onHover?: (id: string | null) => void; onSelect?: (id: string) => void; interactive?: boolean; className?: string }) {
+export function HomesMap(props: MapProps) {
   const [failed, setFailed] = useState(false);
   if (failed) return <BelgiumMap {...props} />;
   return <VectorMap {...props} onFail={() => setFailed(true)} />;
@@ -135,23 +136,7 @@ function mapStyle(dark: boolean): StyleSpecification {
   };
 }
 
-function VectorMap({
-  pins,
-  active,
-  onHover,
-  onSelect,
-  interactive = true,
-  className,
-  onFail,
-}: {
-  pins: Pin[];
-  active?: string | null;
-  onHover?: (id: string | null) => void;
-  onSelect?: (id: string) => void;
-  interactive?: boolean;
-  className?: string;
-  onFail: () => void;
-}) {
+function VectorMap({ pins, active, onHover, onSelect, interactive = true, className, area, drawing, onDraw, onFail }: MapProps & { onFail: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   // The live map, once it has loaded; kept in state so render can place the pins.
@@ -210,12 +195,19 @@ function VectorMap({
     m?.setStyle(mapStyle(dark));
   }, [dark, m]);
 
-  // Glide to fit the pins whenever they change.
-  const fitKey = pins.map((p) => p.id).join(",");
+  // While drawing, a drag draws instead of panning.
   useEffect(() => {
-    if (!m || !pins.length) return;
-    const lngs = pins.map((p) => p.lng);
-    const lats = pins.map((p) => p.lat);
+    if (!m) return;
+    if (drawing) m.dragPan.disable();
+    else if (interactive) m.dragPan.enable();
+  }, [m, drawing, interactive]);
+
+  // Glide to fit the pins (and any drawn area) whenever they change.
+  const fitKey = pins.map((p) => p.id).join(",") + (area ? area.length + ":" + area[0].join() : "");
+  useEffect(() => {
+    if (!m || (!pins.length && !area)) return;
+    const lngs = [...pins.map((p) => p.lng), ...(area ?? []).map((p) => p[0])];
+    const lats = [...pins.map((p) => p.lat), ...(area ?? []).map((p) => p[1])];
     const pad = Math.min(90, Math.round(Math.min(m.getContainer().clientWidth, m.getContainer().clientHeight) / 5));
     m.fitBounds(
       [
@@ -231,6 +223,18 @@ function VectorMap({
     <div className={clsx("relative overflow-hidden bg-[var(--map-land)]", className)}>
       {/* MapLibre makes its container position: relative, so size it with h/w rather than inset. */}
       <div ref={box} className="h-full w-full" />
+      {m && area && (
+        <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+          <path
+            d={areaPath(area.map(([lng, lat]) => { const p = m.project([lng, lat]); return [p.x, p.y]; }))}
+            fill="var(--brick)"
+            fillOpacity={0.1}
+            stroke="var(--brick)"
+            strokeWidth={2}
+            strokeDasharray="6 5"
+          />
+        </svg>
+      )}
       {m && (
         <div className="pointer-events-none absolute inset-0">
           {pins.map((p) => {
@@ -242,6 +246,15 @@ function VectorMap({
             );
           })}
         </div>
+      )}
+      {m && drawing && (
+        <DrawLayer
+          onDone={(pts) => onDraw?.(pts.map(([x, y]) => { const ll = m.unproject([x, y]); return [ll.lng, ll.lat]; }))}
+          onWheel={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            m.easeTo({ zoom: m.getZoom() - e.deltaY * 0.004, around: m.unproject([e.clientX - r.left, e.clientY - r.top]), duration: 120 });
+          }}
+        />
       )}
       {interactive && m && <ZoomControls onIn={() => m.zoomIn()} onOut={() => m.zoomOut()} />}
     </div>

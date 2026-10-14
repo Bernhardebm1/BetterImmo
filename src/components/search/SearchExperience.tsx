@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import clsx from "clsx";
-import { ChevronDown, Heart, Sparkles } from "lucide-react";
+import { ChevronDown, Heart, PenLine } from "lucide-react";
 import { Composer } from "./Composer";
 import { Landing, LogoMark } from "@/components/landing/Landing";
+import { DrawAreaDialog } from "@/components/map/DrawAreaDialog";
 import { HomesMap } from "@/components/map/HomesMap";
+import { Interview, type ChatItem } from "./Interview";
+import { AssistantMark, Reveal, Thinking } from "./Talk";
 import { FilterChips } from "./FilterChips";
 import { ResultRow } from "./ResultRow";
 import { SmartImage } from "@/components/SmartImage";
@@ -43,54 +46,81 @@ function useWide() {
 }
 
 export function SearchExperience() {
-  const [started, setStarted] = useState(false);
+  const [stage, setStage] = useState<"landing" | "interview" | "results">("landing");
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [history, setHistory] = useState<SearchTurn[]>([]);
+  const [chat, setChat] = useState<ChatItem[]>([]);
+  const [asked, setAsked] = useState<string[]>([]);
+  const [ready, setReady] = useState(false);
   const [reply, setReply] = useState<string>("");
   const [question, setQuestion] = useState<Question | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [total, setTotal] = useState(0);
   const [disliked, setDisliked] = useState<string[]>([]);
   const [error, setError] = useState(false);
+  const [drawOpen, setDrawOpen] = useState(false);
   const requestId = useRef(0);
+  const chatId = useRef(0);
 
-  const call = useCallback(async (body: { message?: string; filters: Filters; history: SearchTurn[]; exclude: string[] }) => {
-    const id = ++requestId.current;
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await fetch("/api/search", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as ApiResult;
-      if (id !== requestId.current) return null;
-      setFilters(data.filters);
-      setMatches(data.matches);
-      setTotal(data.total);
-      return data;
-    } catch {
-      if (id === requestId.current) setError(true);
-      return null;
-    } finally {
-      if (id === requestId.current) setLoading(false);
-    }
-  }, []);
+  const call = useCallback(
+    async (body: { message?: string; filters: Filters; history: SearchTurn[]; exclude: string[]; mode?: "interview"; asked?: string[] }) => {
+      const id = ++requestId.current;
+      setLoading(true);
+      setError(false);
+      try {
+        const res = await fetch("/api/search", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = (await res.json()) as ApiResult;
+        if (id !== requestId.current) return null;
+        setFilters(data.filters);
+        setMatches(data.matches);
+        setTotal(data.total);
+        return data;
+      } catch {
+        if (id === requestId.current) setError(true);
+        return null;
+      } finally {
+        if (id === requestId.current) setLoading(false);
+      }
+    },
+    [],
+  );
 
-  const send = async (message: string) => {
-    setStarted(true);
+  const send = async (message: string, base: Filters = filters) => {
+    // The first message opens the follow-up chat; after that, messages refine the results.
+    const interview = stage !== "results";
+    if (stage === "landing") setStage("interview");
     setQuestion(null);
+    setReady(false);
     const nextHistory: SearchTurn[] = [...history, { role: "buyer", text: message }];
     setHistory(nextHistory);
-    const data = await call({ message, filters, history: nextHistory, exclude: disliked });
+    if (interview) setChat((c) => [...c, { id: ++chatId.current, role: "buyer", text: message }]);
+    const data = await call({ message, filters: base, history: nextHistory, exclude: disliked, ...(interview ? { mode: "interview", asked } : {}) });
     if (!data) return;
+    const q = data.question ?? null;
     setReply(data.reply ?? "");
-    setQuestion(data.question ?? null);
-    setHistory([...nextHistory, { role: "assistant", text: [data.reply, data.question?.text].filter(Boolean).join(" ") }]);
+    setQuestion(interview ? null : q);
+    setHistory([...nextHistory, { role: "assistant", text: [data.reply, q?.text].filter(Boolean).join(" ") }]);
+    if (interview) {
+      setChat((c) => [...c, { id: ++chatId.current, role: "assistant", text: data.reply ?? "", question: q }]);
+      if (q?.topic) setAsked((a) => [...a, q.topic!]);
+      setReady(Boolean(data.ready));
+    }
   };
 
   const refilter = (next: Filters, exclude = disliked) => {
     setFilters(next);
     void call({ filters: next, history, exclude });
+  };
+
+  const applyArea = (area: [number, number][]) => {
+    setDrawOpen(false);
+    const next = { ...filters, area, cities: [] };
+    if (stage === "interview") {
+      setAsked((a) => (a.includes("location") ? a : [...a, "location"]));
+      void send("Search the area I drew on the map", next);
+    } else refilter(next);
   };
 
   const pass = (id: string) => {
@@ -100,13 +130,32 @@ export function SearchExperience() {
     void call({ filters, history, exclude: next });
   };
 
+  const showResults = useCallback(() => {
+    setStage("results");
+    setReply((r) => r || "Here are the homes that fit best. Tell me what to change, or edit the filters.");
+  }, []);
+
   return (
     <MotionConfig reducedMotion="user">
       <LayoutGroup>
         <div className="relative isolate min-h-dvh overflow-x-clip">
           <AnimatePresence mode="popLayout" initial={false}>
-            {!started ? (
-              <Landing key="landing" loading={loading} onSubmit={send} />
+            {stage === "landing" ? (
+              <Landing key="landing" loading={loading} onSubmit={(t) => void send(t)} />
+            ) : stage === "interview" ? (
+              <Interview
+                key="interview"
+                chat={chat}
+                loading={loading}
+                error={error}
+                filters={filters}
+                asked={asked}
+                total={total}
+                ready={ready}
+                onSend={(t) => void send(t)}
+                onDraw={() => setDrawOpen(true)}
+                onShow={showResults}
+              />
             ) : (
               <Results
                 key="results"
@@ -118,8 +167,9 @@ export function SearchExperience() {
                 matches={matches}
                 total={total}
                 disliked={disliked}
-                onSend={send}
+                onSend={(t) => void send(t)}
                 onFilters={(f) => refilter(f)}
+                onDraw={() => setDrawOpen(true)}
                 onPass={pass}
                 onRestore={() => {
                   setDisliked([]);
@@ -128,6 +178,7 @@ export function SearchExperience() {
               />
             )}
           </AnimatePresence>
+          <DrawAreaDialog open={drawOpen} initial={filters.area} onClose={() => setDrawOpen(false)} onUse={applyArea} />
         </div>
       </LayoutGroup>
     </MotionConfig>
@@ -145,6 +196,7 @@ function Results({
   disliked,
   onSend,
   onFilters,
+  onDraw,
   onPass,
   onRestore,
 }: {
@@ -158,6 +210,7 @@ function Results({
   disliked: string[];
   onSend: (t: string) => void;
   onFilters: (f: Filters) => void;
+  onDraw: () => void;
   onPass: (id: string) => void;
   onRestore: () => void;
 }) {
@@ -247,7 +300,7 @@ function Results({
             <Assistant reply={reply} question={question} loading={loading && !reply} error={error} onAnswer={onSend} />
 
             <motion.div layout transition={spring.soft} className="mt-7">
-              <FilterChips filters={filters} onChange={onFilters} />
+              <FilterChips filters={filters} onChange={onFilters} onDraw={onDraw} />
             </motion.div>
 
             <motion.div layout transition={spring.soft} className="mt-12 flex items-end justify-between gap-4">
@@ -317,7 +370,15 @@ function Results({
             aria-label="Map of the results"
           >
             {/* Soft left edge, so the map melts into the list instead of meeting it at a line. */}
-            <HomesMap pins={pins} active={active} onHover={setHovered} onSelect={selectPin} className="h-full w-full lg:[mask-image:linear-gradient(to_right,transparent,black_110px)]" />
+            <HomesMap pins={pins} area={filters.area} active={active} onHover={setHovered} onSelect={selectPin} className="h-full w-full lg:[mask-image:linear-gradient(to_right,transparent,black_110px)]" />
+            <button
+              type="button"
+              onClick={onDraw}
+              className="absolute bottom-5 left-5 z-20 flex h-10 items-center gap-2 rounded-full border border-ink/15 bg-paper/90 px-4 text-[13px] text-ink shadow-card backdrop-blur transition-colors hover:border-ink/40 lg:left-[130px]"
+            >
+              <PenLine className="h-3.5 w-3.5 text-brick" strokeWidth={1.75} />
+              {filters.area ? "Redraw area" : "Draw an area"}
+            </button>
             {wide && (
               <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-end gap-5 px-10 pt-6">
                 <div className="pointer-events-auto flex items-center gap-8">
@@ -448,9 +509,7 @@ function Assistant({
 }) {
   return (
     <motion.section layout transition={spring.soft} className="mt-4 flex max-w-[52ch] gap-2.5" aria-live="polite">
-      <div className="mt-[3px] grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brick text-white">
-        <Sparkles className="h-3 w-3" />
-      </div>
+      <AssistantMark className="mt-[1px] h-5 w-5" />
       <div className="min-w-0 flex-1">
         {loading ? (
           <Thinking />
@@ -491,39 +550,5 @@ function Assistant({
         </AnimatePresence>
       </div>
     </motion.section>
-  );
-}
-
-/** Words fade up one after another, like someone talking. */
-function Reveal({ text }: { text: string }) {
-  return (
-    <p className="text-[14px] leading-relaxed text-ink-soft">
-      {text.split(" ").map((w, i) => (
-        <motion.span
-          key={i}
-          className="inline-block"
-          initial={{ opacity: 0, y: 4, filter: "blur(3px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.35, delay: i * 0.02, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {w}&nbsp;
-        </motion.span>
-      ))}
-    </p>
-  );
-}
-
-function Thinking() {
-  return (
-    <div className="flex h-7 items-center gap-1.5" aria-label="Thinking">
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="h-1.5 w-1.5 rounded-full bg-ink-faint"
-          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
-          transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-        />
-      ))}
-    </div>
   );
 }

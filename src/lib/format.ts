@@ -54,7 +54,8 @@ export function describeFilters(f: Filters): string {
   const beds = f.minBedrooms ? `${f.minBedrooms}+ bedroom ` : "";
   const noun = `${beds}${types}`;
   parts.push(`${/^[aeiou]/i.test(noun) ? "an" : "a"} ${noun}`);
-  if (f.cities.length) parts.push(`in ${list(f.cities)}`);
+  if (f.area) parts.push("in the area you drew");
+  else if (f.cities.length) parts.push(`in ${list(f.cities)}`);
   else parts.push("anywhere in Belgium");
   if (f.minPrice && f.maxPrice) parts.push(`between ${formatPriceShort(f.minPrice)} and ${formatPriceShort(f.maxPrice)}`);
   else if (f.maxPrice) parts.push(`under ${formatPriceShort(f.maxPrice)}`);

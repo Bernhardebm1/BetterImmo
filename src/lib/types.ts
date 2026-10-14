@@ -51,15 +51,28 @@ export type Filters = {
   features: Feature[];
   maxEpc?: EpcLabel;
   nearStation?: boolean;
+  /** An area the buyer drew on the map, as [lng, lat] points. Replaces cities while set. */
+  area?: [number, number][];
 };
 
 export const EMPTY_FILTERS: Filters = { cities: [], types: [], features: [] };
+
+/** The follow-ups we ask after the first message, in order. */
+export const TOPICS = ["location", "budget", "type", "bedrooms", "musts"] as const;
+export type Topic = (typeof TOPICS)[number];
 
 export type Question = {
   text: string;
   /** Each option is a short label; picking one sends it back as the buyer's answer. */
   options: string[];
+  /** Set on the follow-ups we ask ourselves, so they are only asked once. */
+  topic?: Topic;
+  /** The buyer can pick several options before sending. */
+  multi?: boolean;
 };
+
+/** Option that opens the map to draw an area instead of sending text. */
+export const DRAW_OPTION = "Draw on the map";
 
 export type SearchTurn = { role: "buyer" | "assistant"; text: string };
 
@@ -68,4 +81,6 @@ export type SearchResponse = {
   reply: string;
   question: Question | null;
   source: "claude" | "local";
+  /** During the follow-ups: we know enough to show homes. */
+  ready?: boolean;
 };

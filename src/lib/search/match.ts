@@ -4,17 +4,30 @@ import { LISTINGS } from "../listings";
 
 export type Match = { listing: Listing; score: number; reasons: string[]; misses: string[] };
 
+/** Ray casting: is [lng, lat] inside the polygon? */
+export function insideArea(lng: number, lat: number, area: [number, number][]): boolean {
+  let inside = false;
+  for (let i = 0, j = area.length - 1; i < area.length; j = i++) {
+    const [xi, yi] = area[i];
+    const [xj, yj] = area[j];
+    if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
 const epcRank = (l: string) => EPC_LABELS.indexOf(l as (typeof EPC_LABELS)[number]);
 
 /**
- * Hard filters (city, type, budget with 5% headroom, bedrooms, size, EPC) decide what is shown;
+ * Hard filters (drawn area or city, type, budget with 5% headroom, bedrooms, size, EPC) decide what is shown;
  * wanted features rank the rest. Listings under offer are hidden by default.
  */
 export function findMatches(f: Filters, exclude: string[] = [], limit = 8): { matches: Match[]; total: number } {
   const candidates = LISTINGS.filter((l) => {
     if (l.status !== "available") return false;
     if (exclude.includes(l.id)) return false;
-    if (f.cities.length && !f.cities.includes(l.city)) return false;
+    if (f.area && f.area.length > 2) {
+      if (!insideArea(l.lng, l.lat, f.area)) return false;
+    } else if (f.cities.length && !f.cities.includes(l.city)) return false;
     if (f.types.length && !f.types.includes(l.type)) return false;
     if (f.maxPrice && l.price > f.maxPrice * 1.05) return false;
     if (f.minPrice && l.price < f.minPrice) return false;

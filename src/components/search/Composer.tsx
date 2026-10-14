@@ -13,7 +13,7 @@ export function Composer({
   autoFocus,
   placeholder,
 }: {
-  size: "hero" | "compact";
+  size: "hero" | "chat" | "compact";
   loading: boolean;
   onSubmit: (text: string) => void;
   autoFocus?: boolean;
@@ -22,14 +22,15 @@ export function Composer({
   const [value, setValue] = useState("");
   const ref = useRef<HTMLTextAreaElement>(null);
   const hero = size === "hero";
+  const chat = size === "chat";
 
   // Grow with the text, up to a few lines. Empty stays one line even if the placeholder wraps.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     el.style.height = "";
-    if (value) el.style.height = `${Math.min(el.scrollHeight, hero ? 168 : 120)}px`;
-  }, [value, hero]);
+    if (value) el.style.height = `${Math.min(el.scrollHeight, hero || chat ? 168 : 120)}px`;
+  }, [value, hero, chat]);
 
   const submit = () => {
     const text = value.trim();
@@ -50,7 +51,11 @@ export function Composer({
         "group relative flex w-full items-center gap-3 border border-ink/15",
         "transition-[border-color,background-color,box-shadow] duration-300",
         "focus-within:border-ink/35 focus-within:shadow-[0_0_0_4px_rgb(251_116_41/0.08)]",
-        hero ? "rounded-lg bg-paper-raised/60 p-2.5 pl-5 shadow-card backdrop-blur-xl focus-within:bg-paper-raised/80" : "rounded-full p-1 pl-4 focus-within:bg-paper-raised/60",
+        hero
+          ? "rounded-lg bg-paper-raised/60 p-2.5 pl-5 shadow-card backdrop-blur-xl focus-within:bg-paper-raised/80"
+          : chat
+            ? "rounded-[24px] bg-paper-raised p-2 pl-5 shadow-card"
+            : "rounded-full p-1 pl-4 focus-within:bg-paper-raised/60",
       )}
     >
       <textarea
@@ -69,7 +74,7 @@ export function Composer({
         }}
         className={clsx(
           "block min-w-0 flex-1 resize-none overflow-hidden bg-transparent text-ink caret-brick outline-none placeholder:truncate placeholder:text-ink-faint focus-visible:outline-none",
-          hero ? "h-7 py-0.5 font-mono text-sm leading-6" : "h-6 text-[13px] leading-6",
+          hero ? "h-7 py-0.5 font-mono text-sm leading-6" : chat ? "h-7 text-[15px] leading-7" : "h-6 text-[13px] leading-6",
         )}
       />
       <motion.button
@@ -82,7 +87,7 @@ export function Composer({
         className={clsx(
           "relative grid shrink-0 place-items-center rounded-full text-white transition-[background-color,opacity] duration-300",
           value.trim() ? "bg-brick" : "bg-brick/80",
-          hero ? "h-11 w-11" : "h-8 w-8",
+          hero ? "h-11 w-11" : chat ? "h-10 w-10" : "h-8 w-8",
         )}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -97,7 +102,7 @@ export function Composer({
             />
           ) : (
             <motion.span key="arrow" initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }} transition={spring.snappy}>
-              <ArrowRight className={hero ? "h-[18px] w-[18px]" : "h-4 w-4"} strokeWidth={2.25} />
+              <ArrowRight className={hero || chat ? "h-[18px] w-[18px]" : "h-4 w-4"} strokeWidth={2.25} />
             </motion.span>
           )}
         </AnimatePresence>

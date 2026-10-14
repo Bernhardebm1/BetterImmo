@@ -3,23 +3,27 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import clsx from "clsx";
-import { ChevronDown, Minus, Plus } from "lucide-react";
+import { ChevronDown, Minus, PenLine, Plus } from "lucide-react";
 import { FEATURE_LABEL, TYPE_LABEL, formatPriceShort } from "@/lib/format";
 import { spring } from "@/lib/motion";
 import { CITIES } from "@/lib/places";
 import { EPC_LABELS, FEATURES, PROPERTY_TYPES, type Filters } from "@/lib/types";
 
-type Key = "price" | "type" | "beds" | "more";
+type Key = "where" | "price" | "type" | "beds" | "more";
 
 /**
- * Price, Type, Bedrooms and More filters, as in the reference design. The assistant fills
- * them in from what the buyer wrote; each label shows the current value and opens an editor.
+ * Location, Price, Type, Bedrooms and More filters, as in the reference design. The assistant
+ * fills them in from what the buyer wrote; each label shows the current value and opens an editor.
  */
-export function FilterChips({ filters: f, onChange }: { filters: Filters; onChange: (f: Filters) => void }) {
+export function FilterChips({ filters: f, onChange, onDraw }: { filters: Filters; onChange: (f: Filters) => void; onDraw: () => void }) {
   const [open, setOpen] = useState<Key | null>(null);
-  const more = f.cities.length + f.features.length + (f.minArea ? 1 : 0) + (f.maxEpc ? 1 : 0) + (f.nearStation ? 1 : 0);
+  const more = f.features.length + (f.minArea ? 1 : 0) + (f.maxEpc ? 1 : 0) + (f.nearStation ? 1 : 0);
 
   const labels: Record<Key, { text: string; set: boolean }> = {
+    where: {
+      text: f.area ? "Drawn area" : f.cities.length > 2 ? `${f.cities.length} cities` : f.cities.length ? f.cities.join(", ") : "Location",
+      set: Boolean(f.area || f.cities.length),
+    },
     price: {
       text:
         f.minPrice && f.maxPrice
@@ -58,7 +62,30 @@ export function FilterChips({ filters: f, onChange }: { filters: Filters; onChan
           </button>
           <AnimatePresence>
             {open === k && (
-              <Popover onClose={() => setOpen(null)} wide={k === "more"}>
+              <Popover onClose={() => setOpen(null)} wide={k === "more" || k === "where"}>
+                {k === "where" && (
+                  <div className="space-y-5">
+                    <Toggles label="Cities" options={CITIES.map((c) => [c, c])} value={f.area ? [] : f.cities} onChange={(cities) => onChange({ ...f, cities, area: undefined })} />
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(null);
+                          onDraw();
+                        }}
+                        className="flex h-9 items-center gap-2 rounded-full border border-ink/15 px-4 text-[13px] text-ink transition-colors hover:border-ink/40"
+                      >
+                        <PenLine className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        {f.area ? "Redraw on the map" : "Draw on the map"}
+                      </button>
+                      {f.area && (
+                        <button type="button" onClick={() => onChange({ ...f, area: undefined })} className="text-[12px] text-ink-soft underline underline-offset-4 hover:text-ink">
+                          Remove drawn area
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {k === "price" && <PriceEditor filters={f} onChange={onChange} />}
                 {k === "type" && (
                   <Toggles
@@ -184,7 +211,6 @@ function Toggles({ label, options, value, onChange }: { label: string; options: 
 function MoreFilters({ filters: f, onChange }: { filters: Filters; onChange: (f: Filters) => void }) {
   return (
     <div className="space-y-6">
-      <Toggles label="Where" options={CITIES.map((c) => [c, c])} value={f.cities} onChange={(cities) => onChange({ ...f, cities })} />
       <Toggles
         label="Must have"
         options={FEATURES.map((x) => [x, FEATURE_LABEL[x]])}

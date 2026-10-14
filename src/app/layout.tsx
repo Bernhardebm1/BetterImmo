@@ -1,17 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Geist, Geist_Mono, IBM_Plex_Mono, Newsreader } from "next/font/google";
+import { Caveat, Geist, IBM_Plex_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 
 const sans = Geist({
   variable: "--font-geist",
   subsets: ["latin"],
-});
-
-/** Prices and figures. */
-const figures = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
 });
 
 const mono = IBM_Plex_Mono({
@@ -48,7 +41,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} ${figures.variable} ${mono.variable} ${hand.variable} ${serif.variable} h-full antialiased`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable} ${hand.variable} ${serif.variable} h-full antialiased`}>
       <body className="grain min-h-full">{children}</body>
     </html>
   );
